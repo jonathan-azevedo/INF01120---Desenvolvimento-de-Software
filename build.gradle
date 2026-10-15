@@ -1,0 +1,36 @@
+plugins {
+    id 'application'
+}
+
+group = 'gerador_musical'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(24)
+    }
+}
+
+dependencies {
+    implementation files('libs/jfugue-5.0.9.jar')
+
+    testImplementation platform('org.junit:junit-bom:5.13.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+application {
+    mainClass = 'geradormusical.AplicacaoGeradorMusical'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+test {
+    useJUnitPlatform()
+}
