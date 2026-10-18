@@ -59,7 +59,7 @@ public class ConfiguracaoMusical {
         validarIntervalo("Voz", voz, 0, QUANTIDADE_VOZES - 1);
     }
 
-    private static void validarIntervalo(String nome, int valor, int minimo, int maximo) {
+    public static void validarIntervalo(String nome, int valor, int minimo, int maximo) {
         if (valor < minimo || valor > maximo) {
             throw new IllegalArgumentException(nome + " deve estar entre " + minimo + " e " + maximo + ". Recebido: " + valor + "."
             );
