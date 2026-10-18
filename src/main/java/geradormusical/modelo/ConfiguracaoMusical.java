@@ -1,6 +1,7 @@
 package geradormusical.modelo;
 
 public class ConfiguracaoMusical {
+    public static final int QUANTIDADE_VOZES = 4;
     public static final int BPM_MINIMO = 10;
     public static final int BPM_MAXIMO = 300;
 
@@ -21,12 +22,9 @@ public class ConfiguracaoMusical {
     public ConfiguracaoMusical(int bpm, int[] instrumentos, int[] oitavas, int[] volumes) {
         validarIntervalo("Bpm", bpm, BPM_MINIMO, BPM_MAXIMO);
         this.bpm = bpm;
-        validarVetor("Instrumeto", instrumentos, INSTRUMENTO_MINIMO, INSTRUMENTO_MAXIMO);
-        this.instrumentos = instrumentos.clone();
-        validarVetor("Oitava", oitavas, OITAVA_MINIMA, OITAVA_MAXIMA);
-        this.oitavas = oitavas.clone();
-        validarVetor("Volume", volumes, VOLUME_MINIMO, VOLUME_MAXIMO);
-        this.volumes = volumes.clone();
+        this.instrumentos = validarVetor("Instrumento", instrumentos, INSTRUMENTO_MINIMO, INSTRUMENTO_MAXIMO);
+        this.oitavas = validarVetor("Oitava", oitavas, OITAVA_MINIMA, OITAVA_MAXIMA);
+        this.volumes = validarVetor("Volume", volumes, VOLUME_MINIMO, VOLUME_MAXIMO);
     }
 
      public static ConfiguracaoMusical configuracaoPadrao(){
@@ -43,16 +41,23 @@ public class ConfiguracaoMusical {
      }
 
      public int getInstrumento(int voz){
+        validarVoz(voz);
         return instrumentos[voz];
      }
 
      public int getOitava(int voz){
+        validarVoz(voz);
         return oitavas[voz];
      }
 
      public int getVolume(int voz){
+        validarVoz(voz);
         return volumes[voz];
      }
+
+    private static void validarVoz(int voz) {
+        validarIntervalo("Voz", voz, 0, QUANTIDADE_VOZES - 1);
+    }
 
     private static void validarIntervalo(String nome, int valor, int minimo, int maximo) {
         if (valor < minimo || valor > maximo) {
@@ -61,9 +66,14 @@ public class ConfiguracaoMusical {
         }
     }
 
-    private static void validarVetor(String nome, int[] vetor, int minimo, int maximo) {
-        for(int i : vetor) {
+    private static int[] validarVetor(String nome, int[] vetor, int minimo, int maximo) {
+        if (vetor == null || vetor.length != QUANTIDADE_VOZES) {
+            throw new IllegalArgumentException(nome + " deve ter exatamente quatro valores.");
+        }
+        int[] copia = vetor.clone();
+        for(int i : copia) {
             validarIntervalo(nome, i, minimo, maximo);
         }
+        return copia;
     }
 }
