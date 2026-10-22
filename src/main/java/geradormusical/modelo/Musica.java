@@ -15,7 +15,8 @@ public class Musica {
     public Musica(int bpm, List<List<EventoMusical>>vozes){
 
     if (bpm < ConfiguracaoMusical.BPM_MINIMO || bpm > ConfiguracaoMusical.BPM_MAXIMO){   
-        throw new IllegalArgumentException("BPM deve estar entre 10 e 300");
+        throw new IllegalArgumentException("BPM deve estar entre "
+                + ConfiguracaoMusical.BPM_MINIMO + " e " + ConfiguracaoMusical.BPM_MAXIMO);
     } 
     
     if (vozes == null || vozes.size()  != ConfiguracaoMusical.QUANTIDADE_VOZES){

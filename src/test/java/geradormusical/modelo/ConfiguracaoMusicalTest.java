@@ -44,9 +44,10 @@ class ConfiguracaoMusicalTest {
     @Test
     void deveAceitarOsLimitesMinimos() {
         ConfiguracaoMusical configuracao = new ConfiguracaoMusical(
-                10, new int[]{0, 0, 0, 0}, new int[]{0, 0, 0, 0}, new int[]{0, 0, 0, 0});
+                ConfiguracaoMusical.BPM_MINIMO, new int[]{0, 0, 0, 0},
+                new int[]{0, 0, 0, 0}, new int[]{0, 0, 0, 0});
 
-        assertEquals(10, configuracao.getBpm());
+        assertEquals(ConfiguracaoMusical.BPM_MINIMO, configuracao.getBpm());
         for (int voz = 0; voz < 4; voz++) {
             assertEquals(0, configuracao.getInstrumento(voz));
             assertEquals(0, configuracao.getOitava(voz));
@@ -57,9 +58,10 @@ class ConfiguracaoMusicalTest {
     @Test
     void deveAceitarOsLimitesMaximos() {
         ConfiguracaoMusical configuracao = new ConfiguracaoMusical(
-                300, new int[]{127, 127, 127, 127}, new int[]{9, 9, 9, 9}, new int[]{127, 127, 127, 127});
+                ConfiguracaoMusical.BPM_MAXIMO, new int[]{127, 127, 127, 127},
+                new int[]{9, 9, 9, 9}, new int[]{127, 127, 127, 127});
 
-        assertEquals(300, configuracao.getBpm());
+        assertEquals(ConfiguracaoMusical.BPM_MAXIMO, configuracao.getBpm());
         for (int voz = 0; voz < 4; voz++) {
             assertEquals(127, configuracao.getInstrumento(voz));
             assertEquals(9, configuracao.getOitava(voz));
@@ -70,13 +72,13 @@ class ConfiguracaoMusicalTest {
     @Test
     void deveRejeitarBpmAbaixoDoMinimo() {
         assertThrows(IllegalArgumentException.class, () -> new ConfiguracaoMusical(
-                9, new int[4], new int[4], new int[4]));
+                ConfiguracaoMusical.BPM_MINIMO - 1, new int[4], new int[4], new int[4]));
     }
 
     @Test
     void deveRejeitarBpmAcimaDoMaximo() {
         assertThrows(IllegalArgumentException.class, () -> new ConfiguracaoMusical(
-                301, new int[4], new int[4], new int[4]));
+                ConfiguracaoMusical.BPM_MAXIMO + 1, new int[4], new int[4], new int[4]));
     }
 
     @Test
