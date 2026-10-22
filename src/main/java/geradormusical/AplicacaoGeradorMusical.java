@@ -6,6 +6,6 @@ public class AplicacaoGeradorMusical {
     public static void main(String[] args) {
         //Teste do Jfugue
         Player player = new Player();
-        player.play("T120 C5q D5q E5q");
+        player.play("T120 C5q D5q E5q F5q G5q A5q B5q C6q");
     }
 }
