@@ -1,17 +1,22 @@
 package geradormusical.modelo;
 import java.util.List;
+import java.util.Collections;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 
 public class Musica {
 
     private final List<List<EventoMusical>> vozes;
     private final int bpm; 
+    private final NavigableMap<Long, Integer> andamentos;
 
 
     public Musica(int bpm, List<List<EventoMusical>>vozes){
 
     if (bpm < ConfiguracaoMusical.BPM_MINIMO || bpm > ConfiguracaoMusical.BPM_MAXIMO){   
-        throw new IllegalArgumentException("BPM deve estar entre 10 e 300");
+        throw new IllegalArgumentException("BPM deve estar entre "
+                + ConfiguracaoMusical.BPM_MINIMO + " e " + ConfiguracaoMusical.BPM_MAXIMO);
     } 
     
     if (vozes == null || vozes.size()  != ConfiguracaoMusical.QUANTIDADE_VOZES){
@@ -20,12 +25,61 @@ public class Musica {
 
   this.vozes = vozes;
   this.bpm = bpm;  
-    
+  this.andamentos = resolverAndamentos(bpm, vozes);
     
     }
 
     public int getBPM(){
         return bpm;
+    }
+
+    public NavigableMap<Long, Integer> getAndamentos(){
+        return andamentos;
+    }
+
+    private static NavigableMap<Long, Integer> resolverAndamentos(
+            int bpmInicial, List<List<EventoMusical>> vozes) {
+        TreeMap<Long, Integer> variacoesPorPosicao = new TreeMap<>();
+
+        for (List<EventoMusical> voz : vozes) {
+            long posicao = 0;
+
+            for (EventoMusical evento : voz) {
+                if (evento.tipo() == TipoEvento.ALTERACAO_BPM) {
+                    int variacao = evento.variacaoBpm();
+
+                    if (variacoesPorPosicao.containsKey(posicao)) {
+                        int variacaoExistente = variacoesPorPosicao.get(posicao);
+                        variacoesPorPosicao.put(posicao, variacaoExistente + variacao);
+                    } else {
+                        variacoesPorPosicao.put(posicao, variacao);
+                    }
+                } else {
+                    posicao += evento.duracao();
+                }
+            }
+        }
+
+        TreeMap<Long, Integer> resultado = new TreeMap<>();
+        int bpmAtual = bpmInicial;
+        resultado.put(0L, bpmAtual);
+
+        for (Long posicao : variacoesPorPosicao.keySet()) {
+            int variacao = variacoesPorPosicao.get(posicao);
+            long novoBpm = (long) bpmAtual + variacao;
+
+            if (novoBpm < ConfiguracaoMusical.BPM_MINIMO) {
+                novoBpm = ConfiguracaoMusical.BPM_MINIMO;
+            }
+            if (novoBpm > ConfiguracaoMusical.BPM_MAXIMO) {
+                novoBpm = ConfiguracaoMusical.BPM_MAXIMO;
+            }
+
+            bpmAtual = (int) novoBpm;
+            resultado.put(posicao, bpmAtual);
+        }
+
+        return Collections.unmodifiableNavigableMap(resultado);
     }
 
     public List<EventoMusical> obterEventos(int voz){ 
