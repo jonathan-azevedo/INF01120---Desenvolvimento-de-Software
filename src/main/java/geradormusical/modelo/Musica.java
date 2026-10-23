@@ -1,4 +1,5 @@
 package geradormusical.modelo;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
 import java.util.NavigableMap;
@@ -23,9 +24,13 @@ public class Musica {
         throw new IllegalArgumentException("Erro na seleção de vozes");
     }
 
-  this.vozes = vozes;
-  this.bpm = bpm;  
-  this.andamentos = resolverAndamentos(bpm, vozes);
+  List<List<EventoMusical>> copiaVozes = new ArrayList<>();
+  for (List<EventoMusical> voz : vozes) {
+    copiaVozes.add(List.copyOf(voz));
+  }
+  this.vozes = List.copyOf(copiaVozes);
+  this.bpm = bpm;
+  this.andamentos = resolverAndamentos(bpm, this.vozes);
     
     }
 
