@@ -13,6 +13,10 @@ import java.awt.Insets;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JTextField;
+
 
 import geradormusical.modelo.ConfiguracaoMusical;
 
@@ -23,6 +27,8 @@ public class TelaPrincipal {
     private SpinnerNumberModel modeloBpm;
     private SpinnerNumberModel modeloSom;
     private SpinnerNumberModel modeloOitava;
+    private JButton BotaoRestaurar;
+    private JComboBox<String> seletorVozes;
 
     public TelaPrincipal() {
 
@@ -57,10 +63,21 @@ public class TelaPrincipal {
         painelTexto.add(rolagemTexto, BorderLayout.CENTER);
         painelPrincipal.add(painelTexto, BorderLayout.CENTER);
 
+        String[] Vozes = {"Voz 0","Voz 1","Voz 2","Voz 3"};
+        seletorVozes = new JComboBox<>(Vozes);
+        seletorVozes.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+        seletorVozes.setBackground(Color.WHITE);
+        JPanel painelVoz = new JPanel(new java.awt.GridLayout(2, 1, 0, 3));
+        painelVoz.setBackground(Color.WHITE);
+        painelVoz.setBorder(BorderFactory.createEmptyBorder(8, 20, 0, 20));
+        painelVoz.add(new JLabel("VOZ", JLabel.CENTER));
+        painelVoz.add(seletorVozes);
+
 
         modeloBpm = new SpinnerNumberModel(120, ConfiguracaoMusical.BPM_MINIMO, ConfiguracaoMusical.BPM_MAXIMO, 10);
         JSpinner spinner = new JSpinner(modeloBpm);
         spinner.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+        ((JSpinner.DefaultEditor) spinner.getEditor()).getTextField().setHorizontalAlignment(JTextField.LEFT);
         spinner.setPreferredSize(new Dimension(180, 32));
         JPanel painelbpm = new JPanel(new java.awt.GridLayout(2, 1, 0, 3));
         painelbpm.setBackground(Color.WHITE);
@@ -71,6 +88,7 @@ public class TelaPrincipal {
         modeloSom = new SpinnerNumberModel(100, ConfiguracaoMusical.VOLUME_MINIMO, ConfiguracaoMusical.VOLUME_MAXIMO, 10);
         JSpinner spinnerVolume = new JSpinner(modeloSom);
         spinnerVolume.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+        ((JSpinner.DefaultEditor) spinnerVolume.getEditor()).getTextField().setHorizontalAlignment(JTextField.LEFT);
         spinnerVolume.setPreferredSize(new Dimension(180, 32));
         JPanel painelsom = new JPanel(new java.awt.GridLayout(2, 1, 0, 3));
         painelsom.setBorder(BorderFactory.createEmptyBorder(8, 20, 0, 20));
@@ -81,6 +99,7 @@ public class TelaPrincipal {
         modeloOitava = new SpinnerNumberModel(6, ConfiguracaoMusical.OITAVA_MINIMA, ConfiguracaoMusical.OITAVA_MAXIMA, 1);
         JSpinner spinnerOitava = new JSpinner(modeloOitava);
         spinnerOitava.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+        ((JSpinner.DefaultEditor) spinnerOitava.getEditor()).getTextField().setHorizontalAlignment(JTextField.LEFT);
         spinnerOitava.setPreferredSize(new Dimension(180, 32));
         JPanel painelOitava = new JPanel(new java.awt.GridLayout(2, 1, 0, 3));
         painelOitava.setBorder(BorderFactory.createEmptyBorder(8, 20, 0, 20));
@@ -100,6 +119,7 @@ public class TelaPrincipal {
 
         JPanel camposConfiguracao = new JPanel(new java.awt.GridLayout(0, 1, 0, 12));;
         camposConfiguracao.setBackground(Color.WHITE);
+        camposConfiguracao.add(painelVoz);
         camposConfiguracao.add(painelbpm);
         camposConfiguracao.add(painelsom);
         camposConfiguracao.add(painelOitava);
@@ -109,8 +129,13 @@ public class TelaPrincipal {
         areaCampos.add(camposConfiguracao, BorderLayout.NORTH);
         painelConfiguracoes.add(areaCampos, BorderLayout.CENTER);
 
-
-
+        BotaoRestaurar = new JButton("Restaurar Padrões");
+        painelConfiguracoes.add(BotaoRestaurar, BorderLayout.SOUTH);
+        BotaoRestaurar.addActionListener(evento -> {
+            modeloBpm.setValue(120);
+            modeloSom.setValue(100);
+            modeloOitava.setValue(6);
+        });
 
         }
     
