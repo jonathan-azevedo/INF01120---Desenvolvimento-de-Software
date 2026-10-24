@@ -27,10 +27,22 @@ public class TelaPrincipal {
     private SpinnerNumberModel modeloBpm;
     private SpinnerNumberModel modeloSom;
     private SpinnerNumberModel modeloOitava;
+    private SpinnerNumberModel modeloInstrumento;
     private JButton BotaoRestaurar;
     private JComboBox<String> seletorVozes;
+    private int[] VolumeporVoz = new int[4];
+    private int[] OitavaporVoz = new int[4];
+    private int[] InstrumentoVoz = new int[4];
 
     public TelaPrincipal() {
+
+
+        ConfiguracaoMusical config = ConfiguracaoMusical.configuracaoPadrao();
+        for(int i = 0; i < ConfiguracaoMusical.QUANTIDADE_VOZES; i++){
+            VolumeporVoz[i] = config.getVolume(i);
+            OitavaporVoz[i] = config.getOitava(i);
+            InstrumentoVoz[i] = config.getInstrumento(i);
+        }
 
         janela = new JFrame("Gerador Musical");
         janela.setBounds(0, 0, 900, 600);
@@ -107,9 +119,19 @@ public class TelaPrincipal {
         painelOitava.add(spinnerOitava);
         painelOitava.setBackground(Color.WHITE);
 
-     
+        modeloInstrumento = new SpinnerNumberModel(6, ConfiguracaoMusical.INSTRUMENTO_MINIMO, ConfiguracaoMusical.INSTRUMENTO_MAXIMO, 5);
+        JSpinner spinnerInstrumento = new JSpinner(modeloInstrumento);
+        spinnerInstrumento.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+        ((JSpinner.DefaultEditor) spinnerInstrumento.getEditor()).getTextField().setHorizontalAlignment(JTextField.LEFT);
+        spinnerInstrumento.setPreferredSize(new Dimension(180, 32));
+        JPanel painelInstrumento = new JPanel(new java.awt.GridLayout(2, 1, 0, 3));
+        painelInstrumento.setBorder(BorderFactory.createEmptyBorder(8, 20, 0, 20));
+        painelInstrumento.add(new JLabel("INSTRUMENTO", JLabel.CENTER));
+        painelInstrumento.add(spinnerInstrumento);
+        painelInstrumento.setBackground(Color.WHITE);
 
-        JPanel painelConfiguracoes = new JPanel(new BorderLayout());
+     
+        JPanel painelConfiguracoes = new JPanel(new BorderLayout(0, 10));
         painelConfiguracoes.setPreferredSize(new Dimension(220, 0));
         painelConfiguracoes.setBackground(Color.WHITE);
         painelConfiguracoes.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
@@ -117,12 +139,13 @@ public class TelaPrincipal {
         painelPrincipal.add(painelConfiguracoes, BorderLayout.EAST);
 
 
-        JPanel camposConfiguracao = new JPanel(new java.awt.GridLayout(0, 1, 0, 12));;
+        JPanel camposConfiguracao = new JPanel(new java.awt.GridLayout(0, 1, 0, 4));
         camposConfiguracao.setBackground(Color.WHITE);
         camposConfiguracao.add(painelVoz);
         camposConfiguracao.add(painelbpm);
         camposConfiguracao.add(painelsom);
         camposConfiguracao.add(painelOitava);
+        camposConfiguracao.add(painelInstrumento);
 
         JPanel areaCampos = new JPanel(new BorderLayout());
         areaCampos.setBackground(Color.WHITE);
@@ -132,9 +155,38 @@ public class TelaPrincipal {
         BotaoRestaurar = new JButton("Restaurar Padrões");
         painelConfiguracoes.add(BotaoRestaurar, BorderLayout.SOUTH);
         BotaoRestaurar.addActionListener(evento -> {
+            int VozSelecionada = seletorVozes.getSelectedIndex();
             modeloBpm.setValue(120);
-            modeloSom.setValue(100);
-            modeloOitava.setValue(6);
+            modeloSom.setValue(config.getVolume(VozSelecionada));
+            modeloOitava.setValue(config.getOitava(VozSelecionada));
+            modeloInstrumento.setValue(config.getInstrumento(VozSelecionada));
+        });
+
+        seletorVozes.addActionListener(evento -> {
+        int VozSelecionada = seletorVozes.getSelectedIndex();
+        modeloSom.setValue(VolumeporVoz[VozSelecionada]);
+        modeloOitava.setValue(OitavaporVoz[VozSelecionada]);
+        modeloInstrumento.setValue(InstrumentoVoz[VozSelecionada]);
+
+        });
+
+        modeloSom.addChangeListener(evento -> {
+        int VozSelecionada = seletorVozes.getSelectedIndex();
+        VolumeporVoz[VozSelecionada] = modeloSom.getNumber().intValue();
+
+
+        });
+
+        modeloOitava.addChangeListener(evento -> {
+        int VozSelecionada = seletorVozes.getSelectedIndex();
+        OitavaporVoz[VozSelecionada] = modeloOitava.getNumber().intValue();
+
+        });
+
+        modeloInstrumento.addChangeListener(evento -> {
+        int VozSelecionada = seletorVozes.getSelectedIndex();
+        InstrumentoVoz[VozSelecionada] = modeloInstrumento.getNumber().intValue();
+
         });
 
         }
