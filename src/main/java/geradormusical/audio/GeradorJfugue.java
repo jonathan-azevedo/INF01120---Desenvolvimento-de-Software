@@ -11,12 +11,10 @@ import geradormusical.modelo.TipoEvento;
 import org.jfugue.player.Player;
 
 
-public class geradorJfugue {
-     
-    double duracao;
-    
+public class GeradorJfugue {
 
-    public Sequence Transformar(Musica musica){
+
+    public Sequence transformar(Musica musica){
         
         Pattern padrao = new Pattern();
         List<Long> posicoes = new ArrayList<>(musica.getAndamentos().keySet());
@@ -34,7 +32,7 @@ public class geradorJfugue {
             List<EventoMusical> eventos = musica.obterEventos(i);
             for(int j = 0; j < eventos.size();j++){
                  EventoMusical evento = eventos.get(j);
-                 duracao = evento.duracao() / 64.0;
+                 double duracao = evento.duracao() / 64.0;
                  if(evento.tipo() == TipoEvento.PAUSA){
                     padrao.add("R/" + duracao);
                  }
@@ -48,8 +46,8 @@ public class geradorJfugue {
             }
         }
 
-        Player tocador = new Player();
-        Sequence sequencia_musical = tocador.getSequence(padrao);
+        Player player = new Player();
+        Sequence sequencia_musical = player.getSequence(padrao);
         return sequencia_musical;
     }
 }
