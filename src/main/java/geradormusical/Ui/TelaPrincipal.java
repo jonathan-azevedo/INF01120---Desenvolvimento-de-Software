@@ -1,4 +1,5 @@
 package geradormusical.Ui;
+
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -17,11 +18,9 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 
-
 import geradormusical.modelo.ConfiguracaoMusical;
 
 public class TelaPrincipal {
-    
     private JFrame janela;
     private JTextArea AreaTexto;
     private SpinnerNumberModel modeloBpm;
@@ -35,10 +34,8 @@ public class TelaPrincipal {
     private int[] InstrumentoVoz = new int[4];
 
     public TelaPrincipal() {
-
-
         ConfiguracaoMusical config = ConfiguracaoMusical.configuracaoPadrao();
-        for(int i = 0; i < ConfiguracaoMusical.QUANTIDADE_VOZES; i++){
+        for (int i = 0; i < ConfiguracaoMusical.QUANTIDADE_VOZES; i++) {
             VolumeporVoz[i] = config.getVolume(i);
             OitavaporVoz[i] = config.getOitava(i);
             InstrumentoVoz[i] = config.getInstrumento(i);
@@ -47,8 +44,8 @@ public class TelaPrincipal {
         janela = new JFrame("Gerador Musical");
         janela.setBounds(0, 0, 900, 600);
         janela.setLocationRelativeTo(null);
+        janela.setMinimumSize(new Dimension(900, 600));
         janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
 
         JPanel painelPrincipal = new JPanel(new BorderLayout(16, 16));
         painelPrincipal.setBackground(new Color(235, 238, 242));
@@ -58,16 +55,13 @@ public class TelaPrincipal {
         titulo.setFont(new Font("Arial", Font.BOLD, 22));
         painelPrincipal.add(titulo, BorderLayout.NORTH);
 
-
         AreaTexto = new JTextArea();
         AreaTexto.setBackground(Color.WHITE);
         AreaTexto.setForeground(new Color(35, 40, 50));
         AreaTexto.setFont(new Font("Monospaced", Font.PLAIN, 16));
         AreaTexto.setMargin(new Insets(12, 12, 12, 12));
-        AreaTexto.setLineWrap(true);
-        AreaTexto.setWrapStyleWord(true);
+        AreaTexto.setLineWrap(false);
         JScrollPane rolagemTexto = new JScrollPane(AreaTexto);
-
 
         JPanel painelTexto = new JPanel(new BorderLayout(0, 8));
         painelTexto.setOpaque(false);
@@ -75,7 +69,7 @@ public class TelaPrincipal {
         painelTexto.add(rolagemTexto, BorderLayout.CENTER);
         painelPrincipal.add(painelTexto, BorderLayout.CENTER);
 
-        String[] Vozes = {"Voz 0","Voz 1","Voz 2","Voz 3"};
+        String[] Vozes = {"Voz 0", "Voz 1", "Voz 2", "Voz 3"};
         seletorVozes = new JComboBox<>(Vozes);
         seletorVozes.setFont(new Font("Times New Roman", Font.PLAIN, 16));
         seletorVozes.setBackground(Color.WHITE);
@@ -85,8 +79,7 @@ public class TelaPrincipal {
         painelVoz.add(new JLabel("VOZ", JLabel.CENTER));
         painelVoz.add(seletorVozes);
 
-
-        modeloBpm = new SpinnerNumberModel(120, ConfiguracaoMusical.BPM_MINIMO, ConfiguracaoMusical.BPM_MAXIMO, 10);
+        modeloBpm = new SpinnerNumberModel(config.getBpm(), ConfiguracaoMusical.BPM_MINIMO, ConfiguracaoMusical.BPM_MAXIMO, 10);
         JSpinner spinner = new JSpinner(modeloBpm);
         spinner.setFont(new Font("Times New Roman", Font.PLAIN, 16));
         ((JSpinner.DefaultEditor) spinner.getEditor()).getTextField().setHorizontalAlignment(JTextField.LEFT);
@@ -97,7 +90,7 @@ public class TelaPrincipal {
         painelbpm.add(new JLabel("BPM", JLabel.CENTER));
         painelbpm.add(spinner);
 
-        modeloSom = new SpinnerNumberModel(100, ConfiguracaoMusical.VOLUME_MINIMO, ConfiguracaoMusical.VOLUME_MAXIMO, 10);
+        modeloSom = new SpinnerNumberModel(100, ConfiguracaoMusical.VOLUME_MINIMO, ConfiguracaoMusical.VOLUME_MAXIMO, 1);
         JSpinner spinnerVolume = new JSpinner(modeloSom);
         spinnerVolume.setFont(new Font("Times New Roman", Font.PLAIN, 16));
         ((JSpinner.DefaultEditor) spinnerVolume.getEditor()).getTextField().setHorizontalAlignment(JTextField.LEFT);
@@ -119,7 +112,7 @@ public class TelaPrincipal {
         painelOitava.add(spinnerOitava);
         painelOitava.setBackground(Color.WHITE);
 
-        modeloInstrumento = new SpinnerNumberModel(6, ConfiguracaoMusical.INSTRUMENTO_MINIMO, ConfiguracaoMusical.INSTRUMENTO_MAXIMO, 5);
+        modeloInstrumento = new SpinnerNumberModel(6, ConfiguracaoMusical.INSTRUMENTO_MINIMO, ConfiguracaoMusical.INSTRUMENTO_MAXIMO, 1);
         JSpinner spinnerInstrumento = new JSpinner(modeloInstrumento);
         spinnerInstrumento.setFont(new Font("Times New Roman", Font.PLAIN, 16));
         ((JSpinner.DefaultEditor) spinnerInstrumento.getEditor()).getTextField().setHorizontalAlignment(JTextField.LEFT);
@@ -130,14 +123,12 @@ public class TelaPrincipal {
         painelInstrumento.add(spinnerInstrumento);
         painelInstrumento.setBackground(Color.WHITE);
 
-     
         JPanel painelConfiguracoes = new JPanel(new BorderLayout(0, 10));
         painelConfiguracoes.setPreferredSize(new Dimension(220, 0));
         painelConfiguracoes.setBackground(Color.WHITE);
         painelConfiguracoes.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
-        painelConfiguracoes.add( new JLabel("Parâmetros iniciais", JLabel.CENTER), BorderLayout.NORTH);
+        painelConfiguracoes.add(new JLabel("Parâmetros iniciais", JLabel.CENTER), BorderLayout.NORTH);
         painelPrincipal.add(painelConfiguracoes, BorderLayout.EAST);
-
 
         JPanel camposConfiguracao = new JPanel(new java.awt.GridLayout(0, 1, 0, 4));
         camposConfiguracao.setBackground(Color.WHITE);
@@ -154,52 +145,56 @@ public class TelaPrincipal {
 
         BotaoRestaurar = new JButton("Restaurar Padrões");
         painelConfiguracoes.add(BotaoRestaurar, BorderLayout.SOUTH);
-        BotaoRestaurar.addActionListener(evento -> {
-            int VozSelecionada = seletorVozes.getSelectedIndex();
-            modeloBpm.setValue(120);
-            modeloSom.setValue(config.getVolume(VozSelecionada));
-            modeloOitava.setValue(config.getOitava(VozSelecionada));
-            modeloInstrumento.setValue(config.getInstrumento(VozSelecionada));
-        });
+        BotaoRestaurar.addActionListener(evento -> restaurarPadroes());
 
-        seletorVozes.addActionListener(evento -> {
-        int VozSelecionada = seletorVozes.getSelectedIndex();
-        modeloSom.setValue(VolumeporVoz[VozSelecionada]);
-        modeloOitava.setValue(OitavaporVoz[VozSelecionada]);
-        modeloInstrumento.setValue(InstrumentoVoz[VozSelecionada]);
-
-        });
+        seletorVozes.addActionListener(evento -> mostrarVozSelecionada());
 
         modeloSom.addChangeListener(evento -> {
-        int VozSelecionada = seletorVozes.getSelectedIndex();
-        VolumeporVoz[VozSelecionada] = modeloSom.getNumber().intValue();
-
-
+            int VozSelecionada = seletorVozes.getSelectedIndex();
+            VolumeporVoz[VozSelecionada] = modeloSom.getNumber().intValue();
         });
 
         modeloOitava.addChangeListener(evento -> {
-        int VozSelecionada = seletorVozes.getSelectedIndex();
-        OitavaporVoz[VozSelecionada] = modeloOitava.getNumber().intValue();
-
+            int VozSelecionada = seletorVozes.getSelectedIndex();
+            OitavaporVoz[VozSelecionada] = modeloOitava.getNumber().intValue();
         });
 
         modeloInstrumento.addChangeListener(evento -> {
-        int VozSelecionada = seletorVozes.getSelectedIndex();
-        InstrumentoVoz[VozSelecionada] = modeloInstrumento.getNumber().intValue();
-
+            int VozSelecionada = seletorVozes.getSelectedIndex();
+            InstrumentoVoz[VozSelecionada] = modeloInstrumento.getNumber().intValue();
         });
-
-        }
-    
-        public void MostrarTela(){
-     janela.setVisible(true);
     }
-        
+
+    private void restaurarPadroes() {
+        ConfiguracaoMusical config = ConfiguracaoMusical.configuracaoPadrao();
+
+        for (int i = 0; i < ConfiguracaoMusical.QUANTIDADE_VOZES; i++) {
+            VolumeporVoz[i] = config.getVolume(i);
+            OitavaporVoz[i] = config.getOitava(i);
+            InstrumentoVoz[i] = config.getInstrumento(i);
+        }
+
+        modeloBpm.setValue(config.getBpm());
+        mostrarVozSelecionada();
+    }
+
+    private void mostrarVozSelecionada() {
+        int voz = seletorVozes.getSelectedIndex();
+
+        modeloSom.setValue(VolumeporVoz[voz]);
+        modeloOitava.setValue(OitavaporVoz[voz]);
+        modeloInstrumento.setValue(InstrumentoVoz[voz]);
+    }
+
+    public void MostrarTela() {
+        janela.setVisible(true);
+    }
+
     // Ferramenta temporária para teste da interface sem executar o main principal
     public static void main(String[] args) {
-    javax.swing.SwingUtilities.invokeLater(() -> {
-    TelaPrincipal tela = new TelaPrincipal();
-    tela.MostrarTela();
-    });
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            TelaPrincipal tela = new TelaPrincipal();
+            tela.MostrarTela();
+        });
     }
 }
