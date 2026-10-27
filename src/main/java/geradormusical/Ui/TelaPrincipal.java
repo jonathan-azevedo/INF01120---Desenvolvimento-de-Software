@@ -19,6 +19,7 @@ import javax.swing.JComboBox;
 import javax.swing.JTextField;
 
 import geradormusical.modelo.ConfiguracaoMusical;
+import geradormusical.modelo.CatalogoInstrumentos;
 
 public class TelaPrincipal {
     private JFrame janela;
@@ -26,7 +27,8 @@ public class TelaPrincipal {
     private SpinnerNumberModel modeloBpm;
     private SpinnerNumberModel modeloSom;
     private SpinnerNumberModel modeloOitava;
-    private SpinnerNumberModel modeloInstrumento;
+    private JComboBox<CatalogoInstrumentos.Instrumento> seletorInstrumento;
+    private CatalogoInstrumentos catalogo = new CatalogoInstrumentos();
     private JButton BotaoRestaurar;
     private JComboBox<String> seletorVozes;
     private int[] VolumeporVoz = new int[4];
@@ -112,17 +114,17 @@ public class TelaPrincipal {
         painelOitava.add(spinnerOitava);
         painelOitava.setBackground(Color.WHITE);
 
-        modeloInstrumento = new SpinnerNumberModel(6, ConfiguracaoMusical.INSTRUMENTO_MINIMO, ConfiguracaoMusical.INSTRUMENTO_MAXIMO, 1);
-        JSpinner spinnerInstrumento = new JSpinner(modeloInstrumento);
-        spinnerInstrumento.setFont(new Font("Times New Roman", Font.PLAIN, 16));
-        ((JSpinner.DefaultEditor) spinnerInstrumento.getEditor()).getTextField().setHorizontalAlignment(JTextField.LEFT);
-        spinnerInstrumento.setPreferredSize(new Dimension(180, 32));
+        seletorInstrumento = new JComboBox<>(
+            catalogo.obterInstrumentos().toArray(new CatalogoInstrumentos.Instrumento[0])
+        );
+        seletorInstrumento.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+        seletorInstrumento.setBackground(Color.WHITE);
+        seletorInstrumento.setSelectedItem(catalogo.obterPorNumeroPrograma(InstrumentoVoz[0]));
         JPanel painelInstrumento = new JPanel(new java.awt.GridLayout(2, 1, 0, 3));
         painelInstrumento.setBorder(BorderFactory.createEmptyBorder(8, 20, 0, 20));
         painelInstrumento.add(new JLabel("INSTRUMENTO", JLabel.CENTER));
-        painelInstrumento.add(spinnerInstrumento);
+        painelInstrumento.add(seletorInstrumento);
         painelInstrumento.setBackground(Color.WHITE);
-
         JPanel painelConfiguracoes = new JPanel(new BorderLayout(0, 10));
         painelConfiguracoes.setPreferredSize(new Dimension(220, 0));
         painelConfiguracoes.setBackground(Color.WHITE);
@@ -159,9 +161,13 @@ public class TelaPrincipal {
             OitavaporVoz[VozSelecionada] = modeloOitava.getNumber().intValue();
         });
 
-        modeloInstrumento.addChangeListener(evento -> {
+        seletorInstrumento.addActionListener(evento -> {
             int VozSelecionada = seletorVozes.getSelectedIndex();
-            InstrumentoVoz[VozSelecionada] = modeloInstrumento.getNumber().intValue();
+            CatalogoInstrumentos.Instrumento instrumentoSelecionado =
+                (CatalogoInstrumentos.Instrumento) seletorInstrumento.getSelectedItem();
+            if (instrumentoSelecionado != null) {
+                InstrumentoVoz[VozSelecionada] = instrumentoSelecionado.numeroPrograma();
+            }
         });
     }
 
@@ -183,7 +189,7 @@ public class TelaPrincipal {
 
         modeloSom.setValue(VolumeporVoz[voz]);
         modeloOitava.setValue(OitavaporVoz[voz]);
-        modeloInstrumento.setValue(InstrumentoVoz[voz]);
+        seletorInstrumento.setSelectedItem(catalogo.obterPorNumeroPrograma(InstrumentoVoz[voz]));
     }
 
     public void MostrarTela() {
