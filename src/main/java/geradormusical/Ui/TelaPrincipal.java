@@ -17,6 +17,13 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
+import geradormusical.controle.ControladorAplicacao;
+import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.text.ParseException;
+import java.util.concurrent.ExecutionException;
 
 import geradormusical.modelo.ConfiguracaoMusical;
 import geradormusical.modelo.CatalogoInstrumentos;
@@ -34,8 +41,14 @@ public class TelaPrincipal {
     private int[] VolumeporVoz = new int[4];
     private int[] OitavaporVoz = new int[4];
     private int[] InstrumentoVoz = new int[4];
+    private final ControladorAplicacao controlador;
+    private JSpinner spinnerBpm;
+    private JSpinner spinnerVolume;
+    private JSpinner spinnerOitava;
 
-    public TelaPrincipal() {
+    public TelaPrincipal(ControladorAplicacao controlador) {
+        this.controlador = controlador;
+
         ConfiguracaoMusical config = ConfiguracaoMusical.configuracaoPadrao();
         for (int i = 0; i < ConfiguracaoMusical.QUANTIDADE_VOZES; i++) {
             VolumeporVoz[i] = config.getVolume(i);
@@ -82,18 +95,18 @@ public class TelaPrincipal {
         painelVoz.add(seletorVozes);
 
         modeloBpm = new SpinnerNumberModel(config.getBpm(), ConfiguracaoMusical.BPM_MINIMO, ConfiguracaoMusical.BPM_MAXIMO, 10);
-        JSpinner spinner = new JSpinner(modeloBpm);
-        spinner.setFont(new Font("Times New Roman", Font.PLAIN, 16));
-        ((JSpinner.DefaultEditor) spinner.getEditor()).getTextField().setHorizontalAlignment(JTextField.LEFT);
-        spinner.setPreferredSize(new Dimension(180, 32));
+        spinnerBpm = new JSpinner(modeloBpm);
+        spinnerBpm.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+        ((JSpinner.DefaultEditor) spinnerBpm.getEditor()).getTextField().setHorizontalAlignment(JTextField.LEFT);
+        spinnerBpm.setPreferredSize(new Dimension(180, 32));
         JPanel painelbpm = new JPanel(new java.awt.GridLayout(2, 1, 0, 3));
         painelbpm.setBackground(Color.WHITE);
         painelbpm.setBorder(BorderFactory.createEmptyBorder(8, 20, 0, 20));
         painelbpm.add(new JLabel("BPM", JLabel.CENTER));
-        painelbpm.add(spinner);
+        painelbpm.add(spinnerBpm);
 
         modeloSom = new SpinnerNumberModel(100, ConfiguracaoMusical.VOLUME_MINIMO, ConfiguracaoMusical.VOLUME_MAXIMO, 1);
-        JSpinner spinnerVolume = new JSpinner(modeloSom);
+        spinnerVolume = new JSpinner(modeloSom);
         spinnerVolume.setFont(new Font("Times New Roman", Font.PLAIN, 16));
         ((JSpinner.DefaultEditor) spinnerVolume.getEditor()).getTextField().setHorizontalAlignment(JTextField.LEFT);
         spinnerVolume.setPreferredSize(new Dimension(180, 32));
@@ -104,7 +117,7 @@ public class TelaPrincipal {
         painelsom.setBackground(Color.WHITE);
 
         modeloOitava = new SpinnerNumberModel(6, ConfiguracaoMusical.OITAVA_MINIMA, ConfiguracaoMusical.OITAVA_MAXIMA, 1);
-        JSpinner spinnerOitava = new JSpinner(modeloOitava);
+        spinnerOitava = new JSpinner(modeloOitava);
         spinnerOitava.setFont(new Font("Times New Roman", Font.PLAIN, 16));
         ((JSpinner.DefaultEditor) spinnerOitava.getEditor()).getTextField().setHorizontalAlignment(JTextField.LEFT);
         spinnerOitava.setPreferredSize(new Dimension(180, 32));
@@ -169,6 +182,92 @@ public class TelaPrincipal {
                 InstrumentoVoz[VozSelecionada] = instrumentoSelecionado.numeroPrograma();
             }
         });
+
+        JPanel painelBotoes = new JPanel();
+        painelBotoes.setOpaque(false);
+
+        JButton botaoGerar = new JButton("Gerar música");
+        JButton botaoReproduzir = new JButton("Reproduzir");
+        JButton botaoPausar = new JButton("Pausar");
+        JButton botaoRetomar = new JButton("Retomar");
+        JButton botaoParar = new JButton("Parar");
+
+        painelBotoes.add(botaoGerar);
+        painelBotoes.add(botaoReproduzir);
+        painelBotoes.add(botaoPausar);
+        painelBotoes.add(botaoRetomar);
+        painelBotoes.add(botaoParar);
+
+        painelPrincipal.add(painelBotoes, BorderLayout.SOUTH);
+
+        botaoReproduzir.setEnabled(false);
+        botaoPausar.setEnabled(false);
+        botaoRetomar.setEnabled(false);
+        botaoParar.setEnabled(false);
+
+        botaoGerar.addActionListener(evento -> {
+            final String texto = AreaTexto.getText();
+            final ConfiguracaoMusical configuracao;
+
+            try {configuracao = obterConfiguracaoDaTela();} 
+            catch (ParseException | IllegalArgumentException erro) {
+                mostrarErro("Confira os valores dos parâmetros.");
+                return;
+            }
+
+            botaoGerar.setEnabled(false);
+            botaoReproduzir.setEnabled(false);
+            botaoPausar.setEnabled(false);
+            botaoRetomar.setEnabled(false);
+            botaoParar.setEnabled(false);
+
+            SwingWorker<Void, Void> tarefa = new SwingWorker<>(){
+                @Override
+                protected Void doInBackground(){
+                    controlador.gerarMusica(texto, configuracao);
+                    return null;
+                }
+
+                @Override
+                protected void done() {
+                    try {
+                        get();
+                        JOptionPane.showMessageDialog(janela, "Música gerada! Clique em Reproduzir.");
+                    } 
+                    catch (InterruptedException erro) {
+                        Thread.currentThread().interrupt();
+                        mostrarErro("A geração foi interrompida.");
+                    } 
+                    catch (ExecutionException erro) {
+                        Throwable causa = erro.getCause();
+                        mostrarErro(causa.getMessage());
+                    } 
+                    finally {
+                        botaoGerar.setEnabled(true);
+
+                        boolean temMusica = controlador.temGeracao();
+                        botaoReproduzir.setEnabled(temMusica);
+                        botaoPausar.setEnabled(temMusica);
+                        botaoRetomar.setEnabled(temMusica);
+                        botaoParar.setEnabled(temMusica);
+                    }
+                }
+            };
+
+            tarefa.execute();
+        });
+
+        botaoReproduzir.addActionListener(evento -> executarAcao(controlador::reproduzir));
+        botaoPausar.addActionListener(evento -> executarAcao(controlador::pausar));
+        botaoRetomar.addActionListener(evento -> executarAcao(controlador::retomar));
+        botaoParar.addActionListener(evento -> executarAcao(controlador::parar));
+
+        janela.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent evento) {
+                controlador.encerrar();
+            }
+        });
     }
 
     private void restaurarPadroes() {
@@ -192,15 +291,40 @@ public class TelaPrincipal {
         seletorInstrumento.setSelectedItem(catalogo.obterPorNumeroPrograma(InstrumentoVoz[voz]));
     }
 
+    private ConfiguracaoMusical obterConfiguracaoDaTela() throws ParseException{
+
+        spinnerBpm.commitEdit();
+        spinnerVolume.commitEdit();
+        spinnerOitava.commitEdit();
+
+        return new ConfiguracaoMusical(
+            modeloBpm.getNumber().intValue(),
+            InstrumentoVoz,
+            OitavaporVoz,
+            VolumeporVoz
+        );
+    }
+
     public void MostrarTela() {
         janela.setVisible(true);
     }
 
-    // Ferramenta temporária para teste da interface sem executar o main principal
-    public static void main(String[] args) {
-        javax.swing.SwingUtilities.invokeLater(() -> {
-            TelaPrincipal tela = new TelaPrincipal();
-            tela.MostrarTela();
-        });
+    private void executarAcao(Runnable acao) {
+        try {
+            acao.run();
+        } 
+        catch (RuntimeException erro) {
+            mostrarErro(erro.getMessage());
+        }   
     }
+
+    private void mostrarErro(String mensagem) {
+        JOptionPane.showMessageDialog(
+            janela,
+            mensagem == null ? "Não foi possível concluir a operação." : mensagem, 
+            "Erro", 
+            JOptionPane.ERROR_MESSAGE
+        );
+    }
+
 }
