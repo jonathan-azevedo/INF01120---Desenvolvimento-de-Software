@@ -267,70 +267,72 @@ public class TelaPrincipal {
         });
 
     botaoSalvar.addActionListener(evento -> {
-        Path destino = caminhoTextoAtual;
-
-        if (destino == null) {
-            JFileChooser seletor = new JFileChooser();
-            seletor.setDialogTitle("Salvar texto musical");
-            seletor.setFileFilter(new FileNameExtensionFilter("Arquivos de texto (*.txt)", "txt"));
+        JFileChooser seletor = new JFileChooser();
+        seletor.setDialogTitle("Salvar texto musical");
+        seletor.setFileFilter(
+                new FileNameExtensionFilter("Arquivos de texto (*.txt)", "txt")
+        );
 
         if (seletor.showSaveDialog(janela) != JFileChooser.APPROVE_OPTION) {
             return;
         }
 
-        destino = seletor.getSelectedFile().toPath();
+        Path destino = seletor.getSelectedFile().toPath();
 
-        if (!destino.getFileName().toString().toLowerCase().endsWith(".txt")) {
+        if (!destino.getFileName().toString()
+                .toLowerCase(java.util.Locale.ROOT).endsWith(".txt")) {
             destino = destino.resolveSibling(destino.getFileName() + ".txt");
         }
-    }
-    
-    if (Files.exists(destino)) {
-        int resposta = JOptionPane.showConfirmDialog( janela, "Substituir o arquivo existente", "Salvar TXT",
-        JOptionPane.YES_NO_OPTION);
 
-        if (resposta != JOptionPane.YES_OPTION) {
-            return;
+        if (Files.exists(destino)) {
+            int resposta = JOptionPane.showConfirmDialog(
+                    janela,
+                    "Substituir o arquivo existente?",
+                    "Salvar TXT",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (resposta != JOptionPane.YES_OPTION) {
+                return;
+            }
         }
-    }
 
-    final Path caminhoSalvar = destino;
-    final String textoSalvar = AreaTexto.getText();
+        final Path caminhoSalvar = destino;
+        final String textoSalvar = AreaTexto.getText();
 
-    botaoSalvar.setEnabled(false);
-    botaoAbrir.setEnabled(false);
-    
+        botaoSalvar.setEnabled(false);
+        botaoAbrir.setEnabled(false);
 
-    SwingWorker<Void, Void> gravacao = new SwingWorker<>() {
-    @Override
-    protected Void doInBackground() throws Exception {
-        controlador.salvarTexto(textoSalvar, caminhoSalvar);
-        return null;
-    }
 
-    @Override
-    protected void done() {
-        try {
-            get();
-            caminhoTextoAtual = caminhoSalvar;
-            JOptionPane.showMessageDialog(janela, "Texto salvo.");
-        } 
-        catch (InterruptedException erro) {
-            Thread.currentThread().interrupt();
-            mostrarErro("O salvamento foi interrompido.");
-        } 
-        catch (ExecutionException erro) {
-            mostrarErro(erro.getCause().getMessage());
-        } 
-        finally {
-            botaoSalvar.setEnabled(true);
-            botaoAbrir.setEnabled(true);
+        SwingWorker<Void, Void> gravacao = new SwingWorker<>() {
+        @Override
+        protected Void doInBackground() throws Exception {
+            controlador.salvarTexto(textoSalvar, caminhoSalvar);
+            return null;
         }
-    }
-    };
 
-    gravacao.execute();
-    
+        @Override
+        protected void done() {
+            try {
+                get();
+                caminhoTextoAtual = caminhoSalvar;
+                JOptionPane.showMessageDialog(janela, "Texto salvo.");
+            }
+            catch (InterruptedException erro) {
+                Thread.currentThread().interrupt();
+                mostrarErro("O salvamento foi interrompido.");
+            }
+            catch (ExecutionException erro) {
+                mostrarErro(erro.getCause().getMessage());
+            }
+            finally {
+                botaoSalvar.setEnabled(true);
+                botaoAbrir.setEnabled(true);
+            }
+        }
+        };
+
+        gravacao.execute();
     });
 
    botaoExportar.addActionListener(evento -> {
