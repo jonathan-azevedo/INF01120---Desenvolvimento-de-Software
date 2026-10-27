@@ -47,7 +47,6 @@ public class TelaPrincipal {
     private JSpinner spinnerBpm;
     private JSpinner spinnerVolume;
     private JSpinner spinnerOitava;
-    private Path caminhoTextoAtual;
 
     public TelaPrincipal(ControladorAplicacao controlador) {
         this.controlador = controlador;
@@ -244,7 +243,6 @@ public class TelaPrincipal {
                 String texto = get();
                 AreaTexto.setText(texto);
                 AreaTexto.setCaretPosition(0);
-                caminhoTextoAtual = caminho;
             } 
             catch (InterruptedException erro) {
                 Thread.currentThread().interrupt();
@@ -315,7 +313,6 @@ public class TelaPrincipal {
         protected void done() {
             try {
                 get();
-                caminhoTextoAtual = caminhoSalvar;
                 JOptionPane.showMessageDialog(janela, "Texto salvo.");
             }
             catch (InterruptedException erro) {
