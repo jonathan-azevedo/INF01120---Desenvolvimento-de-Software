@@ -5,7 +5,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -24,9 +23,12 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.text.ParseException;
 import java.util.concurrent.ExecutionException;
-
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.nio.file.Path;
 import geradormusical.modelo.ConfiguracaoMusical;
 import geradormusical.modelo.CatalogoInstrumentos;
+import java.nio.file.Files;
 
 public class TelaPrincipal {
     private JFrame janela;
@@ -45,6 +47,7 @@ public class TelaPrincipal {
     private JSpinner spinnerBpm;
     private JSpinner spinnerVolume;
     private JSpinner spinnerOitava;
+    private Path caminhoTextoAtual;
 
     public TelaPrincipal(ControladorAplicacao controlador) {
         this.controlador = controlador;
@@ -90,7 +93,7 @@ public class TelaPrincipal {
         seletorVozes.setBackground(Color.WHITE);
         JPanel painelVoz = new JPanel(new java.awt.GridLayout(2, 1, 0, 3));
         painelVoz.setBackground(Color.WHITE);
-        painelVoz.setBorder(BorderFactory.createEmptyBorder(8, 20, 0, 20));
+        painelVoz.setBorder(BorderFactory.createEmptyBorder(2, 20, 0, 20));
         painelVoz.add(new JLabel("VOZ", JLabel.CENTER));
         painelVoz.add(seletorVozes);
 
@@ -98,10 +101,10 @@ public class TelaPrincipal {
         spinnerBpm = new JSpinner(modeloBpm);
         spinnerBpm.setFont(new Font("Times New Roman", Font.PLAIN, 16));
         ((JSpinner.DefaultEditor) spinnerBpm.getEditor()).getTextField().setHorizontalAlignment(JTextField.LEFT);
-        spinnerBpm.setPreferredSize(new Dimension(180, 32));
+        spinnerBpm.setPreferredSize(new Dimension(180, 26));
         JPanel painelbpm = new JPanel(new java.awt.GridLayout(2, 1, 0, 3));
         painelbpm.setBackground(Color.WHITE);
-        painelbpm.setBorder(BorderFactory.createEmptyBorder(8, 20, 0, 20));
+        painelbpm.setBorder(BorderFactory.createEmptyBorder(2, 20, 0, 20));
         painelbpm.add(new JLabel("BPM", JLabel.CENTER));
         painelbpm.add(spinnerBpm);
 
@@ -109,9 +112,9 @@ public class TelaPrincipal {
         spinnerVolume = new JSpinner(modeloSom);
         spinnerVolume.setFont(new Font("Times New Roman", Font.PLAIN, 16));
         ((JSpinner.DefaultEditor) spinnerVolume.getEditor()).getTextField().setHorizontalAlignment(JTextField.LEFT);
-        spinnerVolume.setPreferredSize(new Dimension(180, 32));
+        spinnerVolume.setPreferredSize(new Dimension(180, 26));
         JPanel painelsom = new JPanel(new java.awt.GridLayout(2, 1, 0, 3));
-        painelsom.setBorder(BorderFactory.createEmptyBorder(8, 20, 0, 20));
+        painelsom.setBorder(BorderFactory.createEmptyBorder(2, 20, 0, 20));
         painelsom.add(new JLabel("VOLUME", JLabel.CENTER));
         painelsom.add(spinnerVolume);
         painelsom.setBackground(Color.WHITE);
@@ -120,9 +123,9 @@ public class TelaPrincipal {
         spinnerOitava = new JSpinner(modeloOitava);
         spinnerOitava.setFont(new Font("Times New Roman", Font.PLAIN, 16));
         ((JSpinner.DefaultEditor) spinnerOitava.getEditor()).getTextField().setHorizontalAlignment(JTextField.LEFT);
-        spinnerOitava.setPreferredSize(new Dimension(180, 32));
+        spinnerOitava.setPreferredSize(new Dimension(180, 26));
         JPanel painelOitava = new JPanel(new java.awt.GridLayout(2, 1, 0, 3));
-        painelOitava.setBorder(BorderFactory.createEmptyBorder(8, 20, 0, 20));
+        painelOitava.setBorder(BorderFactory.createEmptyBorder(2, 20, 0, 20));
         painelOitava.add(new JLabel("OITAVA", JLabel.CENTER));
         painelOitava.add(spinnerOitava);
         painelOitava.setBackground(Color.WHITE);
@@ -134,7 +137,7 @@ public class TelaPrincipal {
         seletorInstrumento.setBackground(Color.WHITE);
         seletorInstrumento.setSelectedItem(catalogo.obterPorNumeroPrograma(InstrumentoVoz[0]));
         JPanel painelInstrumento = new JPanel(new java.awt.GridLayout(2, 1, 0, 3));
-        painelInstrumento.setBorder(BorderFactory.createEmptyBorder(8, 20, 0, 20));
+        painelInstrumento.setBorder(BorderFactory.createEmptyBorder(2, 20, 0, 20));
         painelInstrumento.add(new JLabel("INSTRUMENTO", JLabel.CENTER));
         painelInstrumento.add(seletorInstrumento);
         painelInstrumento.setBackground(Color.WHITE);
@@ -186,17 +189,23 @@ public class TelaPrincipal {
         JPanel painelBotoes = new JPanel();
         painelBotoes.setOpaque(false);
 
+        JButton botaoExportar = new  JButton("Exportar MIDI");
+        JButton botaoSalvar = new JButton("Salvar TXT");
+        JButton botaoAbrir = new JButton("Abrir TXT");
         JButton botaoGerar = new JButton("Gerar música");
         JButton botaoReproduzir = new JButton("Reproduzir");
         JButton botaoPausar = new JButton("Pausar");
         JButton botaoRetomar = new JButton("Retomar");
         JButton botaoParar = new JButton("Parar");
 
+        painelBotoes.add(botaoSalvar);
+        painelBotoes.add(botaoAbrir);
         painelBotoes.add(botaoGerar);
         painelBotoes.add(botaoReproduzir);
         painelBotoes.add(botaoPausar);
         painelBotoes.add(botaoRetomar);
         painelBotoes.add(botaoParar);
+        painelBotoes.add(botaoExportar);
 
         painelPrincipal.add(painelBotoes, BorderLayout.SOUTH);
 
@@ -204,8 +213,186 @@ public class TelaPrincipal {
         botaoPausar.setEnabled(false);
         botaoRetomar.setEnabled(false);
         botaoParar.setEnabled(false);
+        botaoExportar.setEnabled(false);
 
-        botaoGerar.addActionListener(evento -> {
+        botaoAbrir.addActionListener(evento -> {
+        JFileChooser seletor = new JFileChooser();
+        seletor.setDialogTitle("Abrir Texto Musical");
+        seletor.setFileFilter( new FileNameExtensionFilter("Arquivos de texto (.txt)", "txt"));
+
+        if(seletor.showOpenDialog(janela) != JFileChooser.APPROVE_OPTION){
+            return;
+        }
+        
+        Path caminho = seletor.getSelectedFile().toPath();
+
+        botaoAbrir.setEnabled(false);
+        botaoSalvar.setEnabled(false);
+        AreaTexto.setEditable(false);
+        
+
+
+        SwingWorker<String, Void> leitura = new SwingWorker<>() {
+        @Override
+        protected String doInBackground() throws Exception {
+        return controlador.abrirTexto(caminho);
+        }
+
+        @Override
+        protected void done() {
+            try {
+                String texto = get();
+                AreaTexto.setText(texto);
+                AreaTexto.setCaretPosition(0);
+                caminhoTextoAtual = caminho;
+            } 
+            catch (InterruptedException erro) {
+                Thread.currentThread().interrupt();
+                mostrarErro("A leitura foi interrompida.");
+            } 
+            catch (ExecutionException erro) {
+                mostrarErro(erro.getCause().getMessage());
+            } 
+            finally {
+            botaoAbrir.setEnabled(true);
+            botaoSalvar.setEnabled(true);
+            AreaTexto.setEditable(true);
+            
+            }
+        }
+        };
+
+        leitura.execute();
+
+        });
+
+    botaoSalvar.addActionListener(evento -> {
+        Path destino = caminhoTextoAtual;
+
+        if (destino == null) {
+            JFileChooser seletor = new JFileChooser();
+            seletor.setDialogTitle("Salvar texto musical");
+            seletor.setFileFilter(new FileNameExtensionFilter("Arquivos de texto (*.txt)", "txt"));
+
+        if (seletor.showSaveDialog(janela) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        destino = seletor.getSelectedFile().toPath();
+
+        if (!destino.getFileName().toString().toLowerCase().endsWith(".txt")) {
+            destino = destino.resolveSibling(destino.getFileName() + ".txt");
+        }
+    }
+    
+    if (Files.exists(destino)) {
+        int resposta = JOptionPane.showConfirmDialog( janela, "Substituir o arquivo existente", "Salvar TXT",
+        JOptionPane.YES_NO_OPTION);
+
+        if (resposta != JOptionPane.YES_OPTION) {
+            return;
+        }
+    }
+
+    final Path caminhoSalvar = destino;
+    final String textoSalvar = AreaTexto.getText();
+
+    botaoSalvar.setEnabled(false);
+    botaoAbrir.setEnabled(false);
+    
+
+    SwingWorker<Void, Void> gravacao = new SwingWorker<>() {
+    @Override
+    protected Void doInBackground() throws Exception {
+        controlador.salvarTexto(textoSalvar, caminhoSalvar);
+        return null;
+    }
+
+    @Override
+    protected void done() {
+        try {
+            get();
+            caminhoTextoAtual = caminhoSalvar;
+            JOptionPane.showMessageDialog(janela, "Texto salvo.");
+        } 
+        catch (InterruptedException erro) {
+            Thread.currentThread().interrupt();
+            mostrarErro("O salvamento foi interrompido.");
+        } 
+        catch (ExecutionException erro) {
+            mostrarErro(erro.getCause().getMessage());
+        } 
+        finally {
+            botaoSalvar.setEnabled(true);
+            botaoAbrir.setEnabled(true);
+        }
+    }
+    };
+
+    gravacao.execute();
+    
+    });
+
+   botaoExportar.addActionListener(evento -> {
+        JFileChooser seletor = new JFileChooser();
+        seletor.setDialogTitle("Exportar MIDI");
+        seletor.setFileFilter(new FileNameExtensionFilter("Arquivos MIDI (*.mid)", "mid"));
+
+        if(seletor.showSaveDialog(janela) != JFileChooser.APPROVE_OPTION){
+            return;
+        }
+
+        Path destino = seletor.getSelectedFile().toPath();
+
+        if(!destino.getFileName().toString().toLowerCase(java.util.Locale.ROOT).endsWith(".mid")){
+            destino = destino.resolveSibling(destino.getFileName() + ".mid");
+        }
+
+        if(Files.exists(destino)){
+            int resposta = JOptionPane.showConfirmDialog(janela, "Substituir o arquivo existente?", "Exportar MIDI", JOptionPane.YES_NO_OPTION);
+
+        if(resposta != JOptionPane.YES_OPTION){
+            return;
+        }
+
+        }
+
+        final Path caminhoMidi = destino;
+        botaoExportar.setEnabled(false);
+        botaoGerar.setEnabled(false);
+
+        SwingWorker<Void, Void> exportacao = new SwingWorker<>() {
+         @Override
+         protected Void doInBackground() throws Exception {
+            controlador.exportarMidi(caminhoMidi);
+            return null;
+         }
+
+         @Override
+         protected void done() {
+            try {
+                get();
+                JOptionPane.showMessageDialog(janela, "MIDI exportado.");
+            }
+            catch(InterruptedException erro){
+                Thread.currentThread().interrupt();
+                mostrarErro("A exportação foi interrompida.");
+            }
+            catch(ExecutionException erro){
+                mostrarErro(erro.getCause().getMessage());
+            }
+            finally {
+                botaoExportar.setEnabled(controlador.temGeracao());
+                botaoGerar.setEnabled(true);
+            }
+        }
+    };
+
+    exportacao.execute();
+});
+
+
+    botaoGerar.addActionListener(evento -> {
             final String texto = AreaTexto.getText();
             final ConfiguracaoMusical configuracao;
 
@@ -220,11 +407,12 @@ public class TelaPrincipal {
             botaoPausar.setEnabled(false);
             botaoRetomar.setEnabled(false);
             botaoParar.setEnabled(false);
+            botaoExportar.setEnabled(false);
 
             SwingWorker<Void, Void> tarefa = new SwingWorker<>(){
                 @Override
                 protected Void doInBackground(){
-                    controlador.gerarMusica(texto, configuracao);
+                    TelaPrincipal.this.controlador.gerarMusica(texto, configuracao);
                     return null;
                 }
 
@@ -244,12 +432,13 @@ public class TelaPrincipal {
                     } 
                     finally {
                         botaoGerar.setEnabled(true);
-
+                        botaoSalvar.setEnabled(true);
                         boolean temMusica = controlador.temGeracao();
                         botaoReproduzir.setEnabled(temMusica);
                         botaoPausar.setEnabled(temMusica);
                         botaoRetomar.setEnabled(temMusica);
                         botaoParar.setEnabled(temMusica);
+                        botaoExportar.setEnabled(temMusica);
                     }
                 }
             };
@@ -257,10 +446,10 @@ public class TelaPrincipal {
             tarefa.execute();
         });
 
-        botaoReproduzir.addActionListener(evento -> executarAcao(controlador::reproduzir));
-        botaoPausar.addActionListener(evento -> executarAcao(controlador::pausar));
-        botaoRetomar.addActionListener(evento -> executarAcao(controlador::retomar));
-        botaoParar.addActionListener(evento -> executarAcao(controlador::parar));
+    botaoReproduzir.addActionListener(evento -> executarAcao(controlador::reproduzir));
+    botaoPausar.addActionListener(evento -> executarAcao(controlador::pausar));
+    botaoRetomar.addActionListener(evento -> executarAcao(controlador::retomar));
+    botaoParar.addActionListener(evento -> executarAcao(controlador::parar));
 
         janela.addWindowListener(new WindowAdapter() {
             @Override
@@ -318,13 +507,12 @@ public class TelaPrincipal {
         }   
     }
 
-    private void mostrarErro(String mensagem) {
-        JOptionPane.showMessageDialog(
-            janela,
-            mensagem == null ? "Não foi possível concluir a operação." : mensagem, 
-            "Erro", 
-            JOptionPane.ERROR_MESSAGE
-        );
-    }
+    private void mostrarErro(String mensagem){
+        if(mensagem == null){
+             mensagem = "Não foi possível concluir a operação.";
+         }
 
+        JOptionPane.showMessageDialog(janela, mensagem, "Erro", JOptionPane.ERROR_MESSAGE);
+}
+    
 }

@@ -39,9 +39,9 @@ public class ControladorAplicacao {
         Musica germusica = interpretador.interpretar(texto, config);
         Sequence gerseq = gerador.transformar(germusica);
 
-        GeracaoMusical Nova_geracao =
-            new GeracaoMusical(germusica, gerseq);
+        GeracaoMusical Nova_geracao = new GeracaoMusical(germusica, gerseq);
 
+        reprodutor.carregar(Nova_geracao.getSequencia());
         ultimageracao = Nova_geracao;
         return Nova_geracao;
     }
