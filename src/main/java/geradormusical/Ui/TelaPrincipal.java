@@ -73,6 +73,8 @@ public class TelaPrincipal {
         painelPrincipal.add(titulo, BorderLayout.NORTH);
 
         AreaTexto = new JTextArea();
+        AreaTexto.setText("C:3 D:3 E:3 F:3 G:2");
+        AreaTexto.setCaretPosition(0);
         AreaTexto.setBackground(Color.WHITE);
         AreaTexto.setForeground(new Color(35, 40, 50));
         AreaTexto.setFont(new Font("Monospaced", Font.PLAIN, 16));
@@ -84,6 +86,10 @@ public class TelaPrincipal {
         painelTexto.setOpaque(false);
         painelTexto.add(new JLabel("Digite seu texto"), BorderLayout.NORTH);
         painelTexto.add(rolagemTexto, BorderLayout.CENTER);
+        painelTexto.add(new JLabel("Digite seu texto"), BorderLayout.NORTH);
+        painelTexto.add(rolagemTexto, BorderLayout.CENTER);
+        painelTexto.add(criarPainelAjuda(), BorderLayout.SOUTH);
+        painelPrincipal.add(painelTexto, BorderLayout.CENTER);
         painelPrincipal.add(painelTexto, BorderLayout.CENTER);
 
         String[] Vozes = {"Voz 0", "Voz 1", "Voz 2", "Voz 3"};
@@ -458,6 +464,38 @@ public class TelaPrincipal {
         });
     }
 
+    private JPanel criarPainelAjuda() {
+        JPanel painelAjuda = new JPanel(new BorderLayout());
+
+        painelAjuda.setBackground(new Color(245, 248, 255));
+        painelAjuda.setBorder(
+            BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder("Como escrever sua música"),
+                BorderFactory.createEmptyBorder(4, 8, 8, 8)
+            )
+        );
+
+        JLabel explicacao = new JLabel(
+            "<html>"
+            + "Use <b>NOTA:DURAÇÃO</b>, separando as notas por espaços.<br>"
+            + "<b>Notas:</b> C=Dó, D=Ré, E=Mi, F=Fá, G=Sol, A=Lá, B=Si.<br>"
+            + "<b>Duração:</b> 1 a 7, da mais longa à mais curta; "
+            + "3 = uma batida.<br>"
+            + "<b>Exemplo:</b> C:3 D:3 E:3 C:2. "
+            + "Use # ou b para acidentes: C#:3 ou Db:3.<br>"
+            + "Cada linha preenchida é uma voz (até 4). "
+            + "Clique em <b>Gerar música</b> e depois em <b>Reproduzir</b>."
+            + "</html>"
+        );
+
+        explicacao.setFont(new Font("Arial", Font.PLAIN, 12));
+        explicacao.setForeground(new Color(35, 40, 50));
+
+        painelAjuda.add(explicacao, BorderLayout.CENTER);
+
+        return painelAjuda;
+    }
+
     private void restaurarPadroes() {
         ConfiguracaoMusical config = ConfiguracaoMusical.configuracaoPadrao();
 
@@ -512,6 +550,6 @@ public class TelaPrincipal {
          }
 
         JOptionPane.showMessageDialog(janela, mensagem, "Erro", JOptionPane.ERROR_MESSAGE);
-}
+    }
     
 }
